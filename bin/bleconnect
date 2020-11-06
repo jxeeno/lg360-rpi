@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# usage: sudo ./bin/bleconnect
+# connects to LG 360 CAM to activate OSC Wi-Fi network
+
+# Based on https://stackoverflow.com/a/57076034
+# CC-BY-SA 4.0
+
+pipe=/tmp/btctlpipe
+output_file=/tmp/btctl_output
+
+if [[ ! -p $pipe ]]; then
+  mkfifo $pipe
+fi
+
+trap terminate INT
+function terminate()
+{
+  killall bluetoothctl &>/dev/null
+  rm -f $pipe
+}
+
+function btreader()
+{
+  {
+    while true
+    do
+      if read line <$pipe; then
+          if [[ "$line" == 'exit' ]]; then
+              break
+          fi
+          echo $line
+      fi
+    done
+  } | bluetoothctl > "$output_file"
+}
+
+
+function btwriter()
+{
+  cmd=$1
+  printf "$cmd\n\n" > $pipe
+}
+
+echo "Find and pair with LG 360 Cam"
+btreader &
+sleep 1
+btwriter "scan on"
+sleep 5
+btwriter "devices"
+sleep 1
+macaddr=$(cat $output_file| grep -e '^Device.*' | grep 'LG R105' | sed 's/Device //g' | sed 's/ LG R105.*//g')
+echo "Connecting to $macaddr"
+btwriter "pair $macaddr"
+sleep 5
+btwriter "scan off"
+sleep 1
+btwriter "exit"
+
+terminate

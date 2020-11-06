@@ -1,0 +1,5 @@
+# LG 360 Cam
+
+```
+sudo ./bin/bleconnect
+```
