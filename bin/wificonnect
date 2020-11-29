@@ -57,7 +57,9 @@ btwriter "add_network"
 wpacliid=$(tail -n 3 $output_file | grep '^[0-9][0-9]*$')
 echo "Added new network $wpacliid, $ssid, $psk"
 btwriter "set_network $wpacliid ssid \"$ssid\""
+sleep 1
 btwriter "set_network $wpacliid psk \"$psk\""
+sleep 1
 btwriter "enable_network $wpacliid"
 sleep 10
 btwriter "quit"
