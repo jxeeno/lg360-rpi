@@ -47,6 +47,7 @@ try:
                             line = ser.readline()
                             msg = pynmea2.parse(line.decode('ascii', errors='replace'))
                             print(msg)
+                            sys.stderr.write('Coords: lat %.5f, lon %.5f\n' % (msg.latitude, msg.longitude))
                         except Exception as e:
                             pass # sys.stderr.write('Error reading serial port %s: %s\n' % (type(e).__name__, e))
                 
