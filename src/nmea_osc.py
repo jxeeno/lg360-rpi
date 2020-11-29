@@ -63,6 +63,7 @@ try:
                                         }
                                     }
                                 })
+                                print(repr(r.json()))
                             if isinstance(msg, pynmea2.types.talker.ZDA):
                                 dtm = datetime.datetime(msg.year, msg.month, msg.day, hour=msg.timestamp.hour, minute=msg.timestamp.minute, second=msg.timestamp.second, tzinfo=datetime.timezone.utc)
                                 sys.stderr.write('Dtm: %s\n' % (dtm.isoformat()))
