@@ -26,7 +26,7 @@ def logfilename():
 
 try:
     while True:
-        ports = _scan_ports()
+        ports = ['/dev/ttyACM0'] # _scan_ports()
         if len(ports) == 0:
             sys.stderr.write('No ports found, waiting 10 seconds...press Ctrl-C to quit...\n')
             time.sleep(10)
@@ -39,21 +39,27 @@ try:
                 # try to read a line of data from the serial port and parse
                 with serial.Serial(port, 4800, timeout=1) as ser:
                     # 'warm up' with reading some input
-                    for i in range(10):
-                        ser.readline()
+                    # for i in range(10):
+                    #     ser.readline()
                     # try to parse (will throw an exception if input is not valid NMEA)
-                    pynmea2.parse(ser.readline().decode('ascii', errors='replace'))
+                    while True:
+                        try:
+                            line = ser.readline()
+                            pynmea2.parse(line.decode('ascii', errors='replace'))
+                            print(line.decode('ascii', errors='replace').strip())
+                        except Exception as e:
+                            # sys.stderr.write('Error reading serial port %s: %s\n' % (type(e).__name__, e))
                 
                     # log data
-                    outfname = logfilename()
-                    sys.stderr.write('Logging data on %s to %s\n' % (port, outfname))
-                    with open(outfname, 'wb') as f:
-                        # loop will exit with Ctrl-C, which raises a
-                        # KeyboardInterrupt
-                        while True:
-                            line = ser.readline()
-                            print(line.decode('ascii', errors='replace').strip())
-                            f.write(line)
+                    # outfname = logfilename()
+                    # sys.stderr.write('Logging data on %s to %s\n' % (port, outfname))
+                    # with open(outfname, 'wb') as f:
+                    #     # loop will exit with Ctrl-C, which raises a
+                    #     # KeyboardInterrupt
+                    #     while True:
+                    #         line = ser.readline()
+                    #         print(line.decode('ascii', errors='replace').strip())
+                    #         f.write(line)
                 
             except Exception as e:
                 sys.stderr.write('Error reading serial port %s: %s\n' % (type(e).__name__, e))
