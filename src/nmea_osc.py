@@ -18,6 +18,31 @@ def _scan_ports():
 
 _scan_ports()
 
+def osc_setup():
+    captm = requests.post('http://192.168.43.1:6624/osc/commands/execute', json={
+        "name": "camera.setOptions",
+        "parameters": {
+            "options": {
+                "captureMode": "interval",
+                "captureInterval": 2
+            }
+        }
+    }, timeout=1)
+    print(repr(captm.json()))
+
+    sndset = requests.post('http://192.168.43.1:6624/settings/set', json={
+        "parameters": [
+            {"_sound": "1"}
+        ]
+    }, timeout=1)
+    print(repr(sndset.json()))
+
+def osc_start_capture():
+    captm = requests.post('http://192.168.43.1:6624/osc/commands/execute', json={
+        "name": "camera.startCapture"
+    }, timeout=1)
+    print(repr(captm.json()))
+
 def logfilename():
     now = datetime.datetime.now()
     return 'NMEA_%0.4d-%0.2d-%0.2d_%0.2d-%0.2d-%0.2d.nmea' % \
@@ -80,7 +105,11 @@ try:
                                             }
                                         }
                                     }, timeout=1)
+                                    
                                     print(repr(r.json()))
+
+                                    osc_setup()
+                                    osc_start_capture()
                         except Exception as e:
                             pass
             except Exception as e:
