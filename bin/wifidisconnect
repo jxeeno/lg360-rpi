@@ -46,7 +46,7 @@ echo "Disconnect from LG 360"
 btreader &
 sleep 1
 btwriter "select_network 0"
-sleep 2
+sleep 3
 btwriter "quit"
 
 terminate
