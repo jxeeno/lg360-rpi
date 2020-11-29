@@ -44,7 +44,12 @@ try:
                             line = ser.readline()
                             msg = pynmea2.parse(line.decode('ascii', errors='replace'))
                             print(msg)
-                            sys.stderr.write('Coords: lat %.5f, lon %.5f, Date: %s, Time: %s\n' % (msg.latitude, msg.longitude, msg.datestamp.isoformat(), msg.timestamp.isoformat()))
+                            if "latitude" in msg and "longitude" in msg:
+                                sys.stderr.write('Coords: lat %.7f, lon %.7f\n' % (msg.latitude, msg.longitude))
+                            if "timestamp" in msg:
+                                sys.stderr.write('Time: %s\n' % (msg.timestamp.isoformat()))
+                            if "datestamp" in msg:
+                                sys.stderr.write('Date: %s\n' % (msg.datestamp.isoformat()))
                         except Exception as e:
                             pass
             except Exception as e:
