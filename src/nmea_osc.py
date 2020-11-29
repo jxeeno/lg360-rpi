@@ -25,6 +25,7 @@ def logfilename():
                  now.hour, now.minute, now.second)
 
 try:
+    sent_dtm = False
     while True:
         ports = ['/dev/ttyACM0'] # _scan_ports()
         if len(ports) == 0:
@@ -66,8 +67,20 @@ try:
                                 print(repr(r.json()))
                             if isinstance(msg, pynmea2.types.talker.ZDA):
                                 dtm = datetime.datetime(msg.year, msg.month, msg.day, hour=msg.timestamp.hour, minute=msg.timestamp.minute, second=msg.timestamp.second, tzinfo=datetime.timezone.utc)
+                                oscdtm = dtm.strftime("%Y:%m:%d %H:%M:%S+00:00")
                                 sys.stderr.write('Dtm: %s\n' % (dtm.isoformat()))
-                                sys.stderr.write('OSC Format: %s\n' % (dtm.strftime("%Y:%m:%d, %H:%M:%S%z")))
+                                sys.stderr.write('OSC Format: %s\n' % (oscdtm))
+                                if not sent_dtm:
+                                    sent_dtm = True
+                                    r = requests.post('http://192.168.43.1:6624/osc/commands/execute', json={
+                                        "name": "camera.setOptions",
+                                        "parameters": {
+                                            "options": {
+                                                "dateTimeZone": oscdtm
+                                            }
+                                        }
+                                    }, timeout=1)
+                                    print(repr(r.json()))
                         except Exception as e:
                             pass
             except Exception as e:
