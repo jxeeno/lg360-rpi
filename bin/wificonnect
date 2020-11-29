@@ -61,7 +61,9 @@ sleep 1
 btwriter "set_network $wpacliid psk \"$psk\""
 sleep 1
 btwriter "enable_network $wpacliid"
-sleep 10
+sleep 2
+btwriter "select_network $wpacliid"
+sleep 2
 btwriter "quit"
 
 terminate
