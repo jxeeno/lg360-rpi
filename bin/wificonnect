@@ -49,7 +49,7 @@ btwriter "scan"
 sleep 5
 btwriter "scan_results"
 sleep 1
-ssid=$(cat $output_file| grep -e '^LGR105.*OSC' | sed 's/.*LGR105/LGR105/g')
+ssid=$(cat $output_file| grep -e 'LGR105.*OSC' | sed 's/.*LGR105/LGR105/g')
 echo "Connecting to $ssid"
 sleep 1
 btwriter "quit"
