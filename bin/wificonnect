@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# usage: sudo ./bin/wificonnect
+# connects to LG 360 CAM OSC Wi-Fi network
+
+# Based on https://stackoverflow.com/a/57076034
+# CC-BY-SA 4.0
+
+pipe=/tmp/wpaclipipe
+output_file=/tmp/wpacli_output
+
+if [[ ! -p $pipe ]]; then
+  mkfifo $pipe
+fi
+
+trap terminate INT
+function terminate()
+{
+  killall wpa_cli &>/dev/null
+  rm -f $pipe
+}
+
+function btreader()
+{
+  {
+    while true
+    do
+      if read line <$pipe; then
+          if [[ "$line" == 'exit' ]]; then
+              break
+          fi
+          echo $line
+      fi
+    done
+  } | wpa_cli -i wlan0 > "$output_file"
+}
+
+
+function btwriter()
+{
+  cmd=$1
+  printf "$cmd\n\n" > $pipe
+}
+
+echo "Find and pair with LG 360 Cam"
+btreader &
+sleep 1
+btwriter "scan"
+sleep 5
+btwriter "scan_results"
+sleep 1
+ssid=$(cat $output_file| grep -e '^LGR105.*OSC' | sed 's/.*LGR105/LGR105/g')
+echo "Connecting to $ssid"
+sleep 1
+btwriter "quit"
+
+terminate
