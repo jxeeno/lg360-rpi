@@ -68,52 +68,50 @@ try:
                     while True:
                         line = ser.readline().decode('ascii', errors='replace')
 
-                        if not line.startswith('$'):
+                        if not line.startswith('$G'):
                             continue
 
-                        try:
-                            msg = pynmea2.parse(line)
-                            print(repr(msg))
+                        msg = pynmea2.parse(line)
+                        print(repr(msg))
 
-                            if isinstance(msg, pynmea2.types.talker.GGA):
-                                sys.stderr.write('Coords: lat %.7f, lon %.7f\n' % (msg.latitude, msg.longitude))
+                        if isinstance(msg, pynmea2.types.talker.GGA):
+                            sys.stderr.write('Coords: lat %.7f, lon %.7f\n' % (msg.latitude, msg.longitude))
+                            r = requests.post('http://192.168.43.1:6624/osc/commands/execute', json={
+                                "name": "camera.setOptions",
+                                "parameters": {
+                                    "options": {
+                                        "gpsInfo": {
+                                            "lat": msg.latitude,
+                                            "lng": msg.longitude,
+                                            "_altitude": 0
+                                        }
+                                    }
+                                }
+                            }, timeout=1)
+                            print(repr(r.json()))
+                        if isinstance(msg, pynmea2.types.talker.ZDA):
+                            dtm = datetime.datetime(msg.year, msg.month, msg.day, hour=msg.timestamp.hour, minute=msg.timestamp.minute, second=msg.timestamp.second, tzinfo=datetime.timezone.utc)
+                            oscdtm = dtm.strftime("%Y:%m:%d %H:%M:%S+00:00")
+                            sys.stderr.write('Dtm: %s\n' % (dtm.isoformat()))
+                            sys.stderr.write('OSC Format: %s\n' % (oscdtm))
+                            if not sent_dtm:
+                                sent_dtm = True
                                 r = requests.post('http://192.168.43.1:6624/osc/commands/execute', json={
                                     "name": "camera.setOptions",
                                     "parameters": {
                                         "options": {
-                                            "gpsInfo": {
-                                                "lat": msg.latitude,
-                                                "lng": msg.longitude,
-                                                "_altitude": 0
-                                            }
+                                            "dateTimeZone": oscdtm
                                         }
                                     }
                                 }, timeout=1)
+                                
                                 print(repr(r.json()))
-                            if isinstance(msg, pynmea2.types.talker.ZDA):
-                                dtm = datetime.datetime(msg.year, msg.month, msg.day, hour=msg.timestamp.hour, minute=msg.timestamp.minute, second=msg.timestamp.second, tzinfo=datetime.timezone.utc)
-                                oscdtm = dtm.strftime("%Y:%m:%d %H:%M:%S+00:00")
-                                sys.stderr.write('Dtm: %s\n' % (dtm.isoformat()))
-                                sys.stderr.write('OSC Format: %s\n' % (oscdtm))
-                                if not sent_dtm:
-                                    sent_dtm = True
-                                    r = requests.post('http://192.168.43.1:6624/osc/commands/execute', json={
-                                        "name": "camera.setOptions",
-                                        "parameters": {
-                                            "options": {
-                                                "dateTimeZone": oscdtm
-                                            }
-                                        }
-                                    }, timeout=1)
-                                    
-                                    print(repr(r.json()))
 
-                                    osc_setup()
-                                    osc_start_capture()
-                        except Exception as e:
-                            pass
+                                osc_setup()
+                                osc_start_capture()
             except Exception as e:
                 sys.stderr.write('Error reading serial port %s: %s\n' % (type(e).__name__, e))
+                raise
             except KeyboardInterrupt as e:
                 sys.stderr.write('Ctrl-C pressed, exiting log of %s to %s\n' % (port, outfname))
 
