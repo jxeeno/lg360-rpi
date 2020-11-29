@@ -40,13 +40,13 @@ try:
                 with serial.Serial(port, 4800, timeout=1) as ser:
                     # try to parse (will throw an exception if input is not valid NMEA)
                     while True:
-                        line = ser.readline()
+                        line = ser.readline().decode('ascii', errors='replace')
 
                         if not line.startswith('$'):
                             continue
 
                         try:
-                            msg = pynmea2.parse(line.decode('ascii', errors='replace'))
+                            msg = pynmea2.parse(line)
                             print(repr(msg))
 
                             if isinstance(msg, pynmea2.types.talker.GGA):
