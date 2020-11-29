@@ -45,10 +45,10 @@ try:
                     while True:
                         try:
                             line = ser.readline()
-                            pynmea2.parse(line.decode('ascii', errors='replace'))
-                            print(line.decode('ascii', errors='replace').strip())
+                            msg = pynmea2.parse(line.decode('ascii', errors='replace'))
+                            print(msg)
                         except Exception as e:
-                            # sys.stderr.write('Error reading serial port %s: %s\n' % (type(e).__name__, e))
+                            pass # sys.stderr.write('Error reading serial port %s: %s\n' % (type(e).__name__, e))
                 
                     # log data
                     # outfname = logfilename()
