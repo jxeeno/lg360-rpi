@@ -62,11 +62,12 @@ try:
                                             }
                                         }
                                     }
-                                })
+                                }, timeout=1)
                                 print(repr(r.json()))
                             if isinstance(msg, pynmea2.types.talker.ZDA):
                                 dtm = datetime.datetime(msg.year, msg.month, msg.day, hour=msg.timestamp.hour, minute=msg.timestamp.minute, second=msg.timestamp.second, tzinfo=datetime.timezone.utc)
                                 sys.stderr.write('Dtm: %s\n' % (dtm.isoformat()))
+                                sys.stderr.write('OSC Format: %s\n' % (dtm.strftime("%Y:%m:%d, %H:%M:%S%z")))
                         except Exception as e:
                             pass
             except Exception as e:
