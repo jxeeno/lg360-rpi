@@ -1,4 +1,4 @@
-import pynmea2, serial, os, time, sys, glob, datetime
+import pynmea2, serial, os, time, sys, glob, datetime, timezone
 
 def _scan_ports():
     if sys.platform.startswith('win'):
@@ -51,8 +51,20 @@ try:
 
                             if isinstance(msg, pynmea2.types.talker.GGA):
                                 sys.stderr.write('Coords: lat %.7f, lon %.7f\n' % (msg.latitude, msg.longitude))
+                                r = requests.post('http://192.168.43.1:6624/osc/commands/execute', json={
+                                    "name": "camera.setOptions",
+                                    "parameters": {
+                                        "options": {
+                                            "gpsInfo": {
+                                                "lat": msg.latitude,
+                                                "lng": msg.longitude,
+                                                "_altitude": 0
+                                            }
+                                        }
+                                    }
+                                })
                             if isinstance(msg, pynmea2.types.talker.ZDA):
-                                dtm = datetime.datetime(msg.year, msg.month, msg.day, hour=msg.timestamp.hour, minute=msg.timestamp.minute, second=msg.timestamp.second, microsecond=msg.timestamp.microsecond, tzinfo=timezone.utc)
+                                dtm = datetime.datetime(msg.year, msg.month, msg.day, hour=msg.timestamp.hour, minute=msg.timestamp.minute, second=msg.timestamp.second, tzinfo=datetime.timezone.utc)
                                 sys.stderr.write('Dtm: %s\n' % (dtm.isoformat()))
                         except Exception as e:
                             pass
