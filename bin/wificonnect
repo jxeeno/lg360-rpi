@@ -54,7 +54,7 @@ psk=$(echo $ssid|sed 's/LGR105_/00/'|sed 's/\.OSC//')
 echo "Connecting to $ssid"
 sleep 1
 btwriter "add_network"
-wpacliid=$(tail -n 2 $output_file | grep '[0-9]')
+wpacliid=$(tail -n 3 $output_file | grep '^[0-9][0-9]*$')
 echo "Added new network $wpacliid"
 btwriter "set_network $wpacliid ssid $ssid"
 btwriter "set_network $wpacliid psk $psk"
