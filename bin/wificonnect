@@ -59,7 +59,7 @@ echo "Added new network $wpacliid, $ssid, $psk"
 btwriter "set_network $wpacliid ssid \"$ssid\""
 btwriter "set_network $wpacliid psk \"$psk\""
 btwriter "enable_network $wpacliid"
-
+sleep 10
 btwriter "quit"
 
 terminate
