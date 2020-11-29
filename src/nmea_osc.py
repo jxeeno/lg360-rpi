@@ -1,4 +1,4 @@
-import pynmea2, serial, os, time, sys, glob, datetime, timezone
+import pynmea2, serial, os, time, sys, glob, datetime, requests
 
 def _scan_ports():
     if sys.platform.startswith('win'):
