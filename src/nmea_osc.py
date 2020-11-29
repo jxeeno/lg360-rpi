@@ -40,16 +40,19 @@ try:
                 with serial.Serial(port, 4800, timeout=1) as ser:
                     # try to parse (will throw an exception if input is not valid NMEA)
                     while True:
+                        line = ser.readline()
+
+                        if not line.startswith('$'):
+                            continue
+
                         try:
-                            line = ser.readline()
                             msg = pynmea2.parse(line.decode('ascii', errors='replace'))
-                            print(msg)
-                            if "latitude" in msg and "longitude" in msg:
+                            print(repr(msg))
+
+                            if isinstance(msg, pynmea2.types.talker.GGA):
                                 sys.stderr.write('Coords: lat %.7f, lon %.7f\n' % (msg.latitude, msg.longitude))
-                            if "timestamp" in msg:
-                                sys.stderr.write('Time: %s\n' % (msg.timestamp.isoformat()))
-                            if "datestamp" in msg:
-                                sys.stderr.write('Date: %s\n' % (msg.datestamp.isoformat()))
+                            if isinstance(msg, pynmea2.types.talker.ZDA):
+                                sys.stderr.write('Time: %s, DD: %s, MM: %s, YYYY: %s\n' % (msg.timestamp.isoformat(), msg.day, msg.month, msg.year))
                         except Exception as e:
                             pass
             except Exception as e:
