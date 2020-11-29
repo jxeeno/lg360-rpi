@@ -52,7 +52,8 @@ try:
                             if isinstance(msg, pynmea2.types.talker.GGA):
                                 sys.stderr.write('Coords: lat %.7f, lon %.7f\n' % (msg.latitude, msg.longitude))
                             if isinstance(msg, pynmea2.types.talker.ZDA):
-                                sys.stderr.write('Time: %s, DD: %s, MM: %s, YYYY: %s\n' % (msg.timestamp.isoformat(), msg.day, msg.month, msg.year))
+                                dtm = datetime.datetime(msg.year, msg.month, msg.day, hour=msg.timestamp.hour, minute=msg.timestamp.minute, second=msg.timestamp.second, microsecond=msg.timestamp.microsecond, tzinfo=timezone.utc)
+                                sys.stderr.write('Dtm: %s\n' % (dtm.isoformat()))
                         except Exception as e:
                             pass
             except Exception as e:
