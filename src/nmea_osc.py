@@ -38,30 +38,15 @@ try:
             try:
                 # try to read a line of data from the serial port and parse
                 with serial.Serial(port, 4800, timeout=1) as ser:
-                    # 'warm up' with reading some input
-                    # for i in range(10):
-                    #     ser.readline()
                     # try to parse (will throw an exception if input is not valid NMEA)
                     while True:
                         try:
                             line = ser.readline()
                             msg = pynmea2.parse(line.decode('ascii', errors='replace'))
                             print(msg)
-                            sys.stderr.write('Coords: lat %.5f, lon %.5f\n' % (msg.latitude, msg.longitude))
+                            sys.stderr.write('Coords: lat %.5f, lon %.5f, Time: %s\n' % (msg.latitude, msg.longitude, msg.timestamp.isoformat()))
                         except Exception as e:
-                            pass # sys.stderr.write('Error reading serial port %s: %s\n' % (type(e).__name__, e))
-                
-                    # log data
-                    # outfname = logfilename()
-                    # sys.stderr.write('Logging data on %s to %s\n' % (port, outfname))
-                    # with open(outfname, 'wb') as f:
-                    #     # loop will exit with Ctrl-C, which raises a
-                    #     # KeyboardInterrupt
-                    #     while True:
-                    #         line = ser.readline()
-                    #         print(line.decode('ascii', errors='replace').strip())
-                    #         f.write(line)
-                
+                            pass
             except Exception as e:
                 sys.stderr.write('Error reading serial port %s: %s\n' % (type(e).__name__, e))
             except KeyboardInterrupt as e:
